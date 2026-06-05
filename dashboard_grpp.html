@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard GRPP — RPP</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0d0f;
+  --bg2: #141416;
+  --bg3: #1c1c1f;
+  --bg4: #242428;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #f0f0f2;
+  --text2: #9898a8;
+  --text3: #5a5a6a;
+  --green: #4ade80;
+  --green-dim: rgba(74,222,128,0.12);
+  --yellow: #fbbf24;
+  --yellow-dim: rgba(251,191,36,0.12);
+  --red: #f87171;
+  --red-dim: rgba(248,113,113,0.1);
+  --blue: #60a5fa;
+  --blue-dim: rgba(96,165,250,0.12);
+  --purple: #a78bfa;
+  --purple-dim: rgba(167,139,250,0.12);
+  --accent: #4ade80;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  min-height: 100vh;
+  padding: 0;
+}
+.header {
+  background: linear-gradient(180deg, #0f1a12 0%, var(--bg) 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 24px 28px 20px;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  top: -60px; left: -60px;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(74,222,128,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.header-top { display: flex; align-items: flex-start; justify-content: space-between; }
+.header-left h1 { font-size: 24px; font-weight: 600; letter-spacing: -0.5px; }
+.header-left p { color: var(--text3); font-size: 12px; margin-top: 3px; }
+.month-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 20px; padding: 5px 12px;
+  font-size: 12px; color: var(--text2); font-family: 'DM Mono', monospace;
+}
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.wrap { padding: 20px 28px; max-width: 1400px; }
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+.kpi {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px 18px;
+  position: relative; overflow: hidden; transition: border-color .2s;
+}
+.kpi:hover { border-color: var(--border2); }
+.kpi-icon { font-size: 18px; margin-bottom: 8px; }
+.kpi-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
+.kpi-val { font-size: 22px; font-weight: 600; font-family: 'DM Mono', monospace; letter-spacing: -1px; }
+.kpi-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
+.kpi-bar { height: 3px; background: var(--bg4); border-radius: 99px; margin-top: 10px; }
+.kpi-bar-fill { height: 3px; border-radius: 99px; transition: width 1s ease; }
+.mid-row { display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px; margin-bottom: 16px; }
+.card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px 18px;
+}
+.card-title {
+  font-size: 10px; font-weight: 500; color: var(--text3);
+  text-transform: uppercase; letter-spacing: .08em;
+  margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+}
+.card-title span { color: var(--accent); }
+.objetivo-main {
+  font-size: 15px; font-weight: 500; line-height: 1.5;
+  color: var(--text); text-align: center; padding: 8px 0;
+  border-bottom: 1px solid var(--border); margin-bottom: 10px;
+}
+.objetivo-main small { display: block; font-size: 11px; color: var(--text3); font-weight: 400; margin-top: 3px; }
+.task { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--border); }
+.task:last-child { border-bottom: none; }
+.task-check { width: 14px; height: 14px; border-radius: 3px; border: 1px solid var(--border2); flex-shrink: 0; }
+.task-text { font-size: 12px; color: var(--text2); }
+.bottom-row { display: grid; grid-template-columns: 1.6fr 1fr; gap: 10px; margin-bottom: 16px; }
+.bottom-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+table { width: 100%; border-collapse: collapse; }
+th { font-size: 10px; font-weight: 500; color: var(--text3); text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: .05em; }
+td { padding: 8px 8px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--bg3); }
+.badge { display: inline-block; font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 99px; }
+.badge-e { background: var(--yellow-dim); color: var(--yellow); }
+.badge-n { background: var(--purple-dim); color: var(--purple); }
+.badge-c { background: var(--green-dim); color: var(--green); }
+.badge-p { background: var(--red-dim); color: var(--red); }
+.badge-b { background: var(--blue-dim); color: var(--blue); }
+.prob-wrap { display: flex; align-items: center; gap: 6px; }
+.prob-bar { flex: 1; height: 3px; background: var(--bg4); border-radius: 99px; }
+.prob-fill { height: 3px; border-radius: 99px; }
+.embudo-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-top: 8px; }
+.embudo-item { text-align: center; background: var(--bg3); border-radius: 8px; padding: 12px 6px; }
+.embudo-num { font-size: 22px; font-weight: 600; font-family: 'DM Mono', monospace; }
+.embudo-label { font-size: 10px; color: var(--text3); margin-top: 2px; }
+.reunion-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 7px 0; border-bottom: 1px solid var(--border); gap: 8px; }
+.reunion-row:last-child { border-bottom: none; }
+.reunion-nombre { font-size: 12px; font-weight: 500; color: var(--text); }
+.reunion-paso { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.reunion-fecha { font-size: 10px; color: var(--text3); font-family: 'DM Mono', monospace; white-space: nowrap; flex-shrink: 0; padding-top: 2px; }
+.obj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.obj-item { background: var(--bg3); border-radius: 8px; padding: 10px 12px; }
+.obj-cat { font-size: 11px; font-weight: 500; margin-bottom: 2px; }
+.obj-num { font-size: 20px; font-weight: 600; font-family: 'DM Mono', monospace; }
+.obj-meta { font-size: 10px; color: var(--text3); margin-top: 2px; }
+.accesos { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; margin-top: 8px; }
+.acceso { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 12px 8px; text-align: center; cursor: pointer; text-decoration: none; transition: border-color .2s, background .2s; }
+.acceso:hover { border-color: var(--accent); background: var(--green-dim); }
+.acceso-icon { font-size: 20px; margin-bottom: 5px; }
+.acceso-label { font-size: 10px; color: var(--text2); line-height: 1.3; }
+.loading { display: flex; align-items: center; justify-content: center; height: 60px; color: var(--text3); font-size: 12px; gap: 8px; }
+.spinner { width: 14px; height: 14px; border: 2px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.error-msg { color: var(--red); font-size: 12px; padding: 8px; background: var(--red-dim); border-radius: 6px; }
+.ver-link { font-size: 11px; color: var(--blue); text-decoration: none; }
+.ver-link:hover { text-decoration: underline; }
+.section-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.td-secondary { color: var(--text2); font-size: 11px; }
+.td-dim { color: var(--text3); font-size: 11px; }
+.tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 500; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="header-left">
+      <h1>📊 GRPP</h1>
+      <p>Claridad en lo que hago, criterio en lo que priorizo y foco en lo que genera impacto.</p>
+    </div>
+    <div class="month-badge"><div class="dot"></div><span id="mes-badge">Cargando...</span></div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="kpi-grid" id="kpi-grid">
+    <div class="kpi"><div class="kpi-label">Cuota del mes</div><div class="loading"><div class="spinner"></div></div></div>
+    <div class="kpi"><div class="kpi-label">Pipeline activo</div><div class="loading"><div class="spinner"></div></div></div>
+    <div class="kpi"><div class="kpi-label">Cerrado</div><div class="loading"><div class="spinner"></div></div></div>
+    <div class="kpi"><div class="kpi-label">Avance</div><div class="loading"><div class="spinner"></div></div></div>
+  </div>
+
+  <div class="mid-row">
+    <div class="card">
+      <div class="card-title"><span>◎</span> Objetivo principal & prioridades</div>
+      <div class="objetivo-main">
+        Cerrar Audio Streaming Mundial
+        <small>ISM en negociación · actualiza según tu foco del mes</small>
+      </div>
+      <div class="task"><div class="task-check"></div><div class="task-text">Seguimiento ISM — Audio Streaming Mundial</div></div>
+      <div class="task"><div class="task-check"></div><div class="task-text">Seguimiento RAPLATA — La Fiesta del Fútbol</div></div>
+      <div class="task"><div class="task-check"></div><div class="task-text">Activar propuestas en Borrador</div></div>
+      <div class="task"><div class="task-check"></div><div class="task-text">Completar Log semanal (viernes)</div></div>
+    </div>
+    <div class="card">
+      <div class="section-hdr">
+        <div class="card-title" style="margin-bottom:0"><span>◈</span> Embudo comercial</div>
+      </div>
+      <div class="embudo-grid" id="embudo-grid">
+        <div class="embudo-item"><div class="loading"><div class="spinner"></div></div></div>
+        <div class="embudo-item"></div>
+        <div class="embudo-item"></div>
+        <div class="embudo-item"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-row">
+    <div class="card">
+      <div class="section-hdr">
+        <div class="card-title" style="margin-bottom:0"><span>◱</span> Pipeline comercial activo</div>
+        <a class="ver-link" href="https://app.notion.com/p/8d9e7e90897a4de584c766580787921f" target="_blank">Ver todas →</a>
+      </div>
+      <div id="pipeline-table"><div class="loading"><div class="spinner"></div> Cargando propuestas...</div></div>
+    </div>
+    <div class="card">
+      <div class="section-hdr">
+        <div class="card-title" style="margin-bottom:0"><span>◷</span> Reuniones recientes</div>
+        <a class="ver-link" href="https://app.notion.com/p/8af8ae4e8b3f4c2bb6680ee0e0691e15" target="_blank">Ver todas →</a>
+      </div>
+      <div id="reuniones-list"><div class="loading"><div class="spinner"></div> Cargando...</div></div>
+    </div>
+  </div>
+
+  <div class="bottom-row2">
+    <div class="card">
+      <div class="section-hdr">
+        <div class="card-title" style="margin-bottom:0"><span>◎</span> Objeciones registradas</div>
+        <a class="ver-link" href="https://app.notion.com/p/360bf65a7ba2451c909f9859c5345ec6" target="_blank">Ver todas →</a>
+      </div>
+      <div id="obj-content"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+    <div class="card">
+      <div class="section-hdr">
+        <div class="card-title" style="margin-bottom:0"><span>◈</span> Log semanal</div>
+        <a class="ver-link" href="https://app.notion.com/p/13df770e33084f0594e66043fc5cfe9c" target="_blank">Ver →</a>
+      </div>
+      <div id="log-content"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span>⚡</span> Accesos rápidos</div>
+    <div class="accesos">
+      <a class="acceso" href="https://app.notion.com/p/8d9e7e90897a4de584c766580787921f" target="_blank"><div class="acceso-icon">📋</div><div class="acceso-label">Propuestas RPP</div></a>
+      <a class="acceso" href="https://app.notion.com/p/8af8ae4e8b3f4c2bb6680ee0e0691e15" target="_blank"><div class="acceso-icon">🗓</div><div class="acceso-label">Reuniones clave</div></a>
+      <a class="acceso" href="https://app.notion.com/p/13df770e33084f0594e66043fc5cfe9c" target="_blank"><div class="acceso-icon">📓</div><div class="acceso-label">Log semanal</div></a>
+      <a class="acceso" href="https://app.notion.com/p/360bf65a7ba2451c909f9859c5345ec6" target="_blank"><div class="acceso-icon">💬</div><div class="acceso-label">Objeciones</div></a>
+      <a class="acceso" href="https://app.notion.com/p/c058bc1e6d70432eb0da597cb09ff1ae" target="_blank"><div class="acceso-icon">🎯</div><div class="acceso-label">Cuotas</div></a>
+    </div>
+  </div>
+</div>
+
+<script>
+const TOKEN = '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';
+const DB_PROPUESTAS = '8d9e7e90-897a-4de5-84c7-66580787921f';
+const DB_CUOTAS     = 'c058bc1e-6d70-432e-b0da-597cb09ff1ae';
+const DB_OBJECIONES = '360bf65a-7ba2-451c-909f-9859c5345ec6';
+const DB_REUNIONES  = '8af8ae4e-8b3f-4c2b-b668-0ee0e0691e15';
+const DB_LOG        = '13df770e-3308-4f05-94e6-6043fc5cfe9c';
+
+const PROXY = 'https://api.allorigins.win/raw?url=';
+
+async function notionQuery(dbId, filter, sorts, pageSize = 20) {
+  const url = `https://api.notion.com/v1/databases/${dbId}/query`;
+  const body = { page_size: pageSize };
+  if (filter) body.filter = filter;
+  if (sorts) body.sorts = sorts;
+  const encoded = encodeURIComponent(url);
+  const proxyUrl = `${PROXY}${encoded}`;
+  const res = await fetch(proxyUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-requested-with': 'notion-dashboard',
+    },
+    body: JSON.stringify({
+      _notion_token: TOKEN,
+      _notion_version: '2022-06-28',
+      ...body
+    })
+  });
+  if (!res.ok) throw new Error('Error API');
+  return res.json();
+}
+
+async function notionQueryDirect(dbId, body = {}) {
+  const url = `https://api.notion.com/v1/databases/${dbId}/query`;
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${TOKEN}`,
+        'Notion-Version': '2022-06-28',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ page_size: 20, ...body })
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.message || 'API Error');
+    }
+    return res.json();
+  } catch(e) {
+    throw e;
+  }
+}
+
+function fmt(n) {
+  if (!n && n !== 0) return '—';
+  return 'S/ ' + Math.round(n).toLocaleString('es-PE');
+}
+
+function getProp(page, name) {
+  const p = page.properties[name];
+  if (!p) return null;
+  if (p.type === 'title') return p.title?.map(t => t.plain_text).join('') || '';
+  if (p.type === 'rich_text') return p.rich_text?.map(t => t.plain_text).join('') || '';
+  if (p.type === 'select') return p.select?.name || '';
+  if (p.type === 'status') return p.status?.name || '';
+  if (p.type === 'number') return p.number;
+  if (p.type === 'date') return p.date?.start || '';
+  if (p.type === 'formula') return p.formula?.number ?? p.formula?.string ?? '';
+  return null;
+}
+
+function badgeClass(estado) {
+  const m = { 'Borrador': 'badge-b', 'Enviada': 'badge-e', 'En negociación': 'badge-n', 'Cerrada': 'badge-c', 'Perdida': 'badge-p' };
+  return m[estado] || 'badge-b';
+}
+
+function probColor(p) {
+  if (!p) return '#5a5a6a';
+  if (p >= 70) return '#4ade80';
+  if (p >= 40) return '#fbbf24';
+  return '#f87171';
+}
+
+function fmtFecha(str) {
+  if (!str) return '—';
+  const d = new Date(str);
+  return d.toLocaleDateString('es-PE', { day: '2-digit', month: 'short' });
+}
+
+async function loadAll() {
+  // Mes actual
+  const now = new Date();
+  document.getElementById('mes-badge').textContent =
+    now.toLocaleDateString('es-PE', { month: 'long', year: 'numeric' });
+
+  await Promise.all([
+    loadPropuestas(),
+    loadCuotas(),
+    loadObjeciones(),
+    loadReuniones(),
+    loadLog()
+  ]);
+}
+
+async function loadPropuestas() {
+  try {
+    const data = await notionQueryDirect(DB_PROPUESTAS, {
+      sorts: [{ property: 'Monto (S/)', direction: 'descending' }]
+    });
+    const pages = data.results || [];
+
+    // KPI pipeline
+    let pipeline = 0, cerrado = 0, perdido = 0;
+    let env = 0, neg = 0, cer = 0, per = 0, bor = 0;
+    pages.forEach(p => {
+      const estado = getProp(p, 'Estado');
+      const monto = getProp(p, 'Monto (S/)') || 0;
+      if (estado === 'Enviada') { pipeline += monto; env++; }
+      if (estado === 'En negociación') { pipeline += monto; neg++; }
+      if (estado === 'Cerrada') { cerrado += monto; cer++; }
+      if (estado === 'Perdida') { per++; }
+      if (estado === 'Borrador') { bor++; }
+    });
+
+    // Embudo
+    document.getElementById('embudo-grid').innerHTML = `
+      <div class="embudo-item"><div class="embudo-num" style="color:var(--blue)">${bor+env}</div><div class="embudo-label">Enviadas</div></div>
+      <div class="embudo-item"><div class="embudo-num" style="color:var(--purple)">${neg}</div><div class="embudo-label">En negociación</div></div>
+      <div class="embudo-item"><div class="embudo-num" style="color:var(--green)">${cer}</div><div class="embudo-label">Cerradas</div></div>
+      <div class="embudo-item"><div class="embudo-num" style="color:var(--red)">${per}</div><div class="embudo-label">Perdidas</div></div>
+    `;
+
+    // Pipeline table — solo activas
+    const activas = pages.filter(p => {
+      const e = getProp(p, 'Estado');
+      return ['Borrador','Enviada','En negociación'].includes(e);
+    }).slice(0, 8);
+
+    if (activas.length === 0) {
+      document.getElementById('pipeline-table').innerHTML = '<p style="color:var(--text3);text-align:center;padding:16px">Sin propuestas activas</p>';
+    } else {
+      let rows = activas.map(p => {
+        const cliente = getProp(p, 'Cliente') || '—';
+        const producto = getProp(p, 'Producto / paquete') || '—';
+        const monto = getProp(p, 'Monto (S/)');
+        const estado = getProp(p, 'Estado') || '';
+        const ejecutivo = getProp(p, 'Ejecutivo de ventas') || '—';
+        const prob = getProp(p, 'Probabilidad de cierre (%)');
+        return `<tr>
+          <td style="font-weight:500">${cliente}</td>
+          <td class="td-secondary">${producto}</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">${fmt(monto)}</td>
+          <td><span class="badge ${badgeClass(estado)}">${estado}</span></td>
+          <td class="td-secondary">${ejecutivo}</td>
+          <td>${prob != null ? `<div class="prob-wrap"><span style="font-size:10px;color:var(--text3);min-width:28px">${prob}%</span><div class="prob-bar"><div class="prob-fill" style="width:${prob}%;background:${probColor(prob)}"></div></div></div>` : '<span class="td-dim">—</span>'}</td>
+        </tr>`;
+      }).join('');
+      document.getElementById('pipeline-table').innerHTML = `
+        <table>
+          <thead><tr>
+            <th>Cliente</th><th>Producto</th><th>Monto</th><th>Estado</th><th>Ejecutivo</th><th>Prob.</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    }
+
+    // Actualiza KPI pipeline y cerrado (cuota viene de loadCuotas)
+    window._pipeline = pipeline;
+    window._cerrado = cerrado;
+    renderKPIs();
+
+  } catch(e) {
+    document.getElementById('pipeline-table').innerHTML = `<div class="error-msg">Error cargando propuestas: ${e.message}. Verifica que el token tenga acceso a esta base.</div>`;
+    document.getElementById('embudo-grid').innerHTML = `<div class="error-msg" style="grid-column:1/-1">Error: ${e.message}</div>`;
+  }
+}
+
+async function loadCuotas() {
+  try {
+    const data = await notionQueryDirect(DB_CUOTAS, {
+      sorts: [{ property: 'Mes', direction: 'descending' }]
+    });
+    const page = data.results?.[0];
+    window._cuota = page ? (getProp(page, 'Cuota (S/)') || 50000) : 50000;
+    renderKPIs();
+  } catch(e) {
+    window._cuota = 50000;
+    renderKPIs();
+  }
+}
+
+function renderKPIs() {
+  const cuota = window._cuota || 50000;
+  const pipeline = window._pipeline || 0;
+  const cerrado = window._cerrado || 0;
+  const pct = cuota > 0 ? Math.min(100, Math.round(cerrado / cuota * 100)) : 0;
+  const pctColor = pct >= 100 ? '#4ade80' : pct >= 60 ? '#fbbf24' : '#f87171';
+
+  document.getElementById('kpi-grid').innerHTML = `
+    <div class="kpi">
+      <div class="kpi-label">🎯 Cuota del mes</div>
+      <div class="kpi-val">${fmt(cuota)}</div>
+      <div class="kpi-sub">Meta mensual</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">📈 Pipeline activo</div>
+      <div class="kpi-val" style="color:var(--green)">${fmt(pipeline)}</div>
+      <div class="kpi-sub">Enviadas + en negociación</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">✅ Cerrado</div>
+      <div class="kpi-val" style="color:${cerrado > 0 ? 'var(--green)' : 'var(--text3)'}">${fmt(cerrado)}</div>
+      <div class="kpi-sub">Este mes</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">📊 Avance</div>
+      <div class="kpi-val" style="color:${pctColor}">${pct}%</div>
+      <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${pct}%;background:${pctColor}"></div></div>
+      <div class="kpi-sub">${cerrado >= cuota ? '✓ Cuota cumplida' : fmt(cuota - cerrado) + ' por cerrar'}</div>
+    </div>
+  `;
+}
+
+async function loadObjeciones() {
+  try {
+    const data = await notionQueryDirect(DB_OBJECIONES);
+    const pages = data.results || [];
+    if (pages.length === 0) {
+      document.getElementById('obj-content').innerHTML = '<p style="color:var(--text3);font-size:12px">Sin objeciones registradas aún</p>';
+      return;
+    }
+    const cats = {};
+    pages.forEach(p => {
+      const cat = getProp(p, 'Categoría') || 'Otra';
+      const res = getProp(p, 'Resultado') || '';
+      if (!cats[cat]) cats[cat] = { count: 0, ultimo: res };
+      cats[cat].count++;
+      cats[cat].ultimo = res;
+    });
+    const catColors = {
+      'Precio alto': 'var(--red)', 'Sin presupuesto': 'var(--yellow)',
+      'Ya tienen pauta': 'var(--purple)', 'No ven el valor': 'var(--blue)',
+      'Competencia': 'var(--text)', 'Timing': 'var(--yellow)', 'Otra': 'var(--text3)'
+    };
+    const items = Object.entries(cats).slice(0, 4).map(([cat, v]) => `
+      <div class="obj-item">
+        <div class="obj-cat" style="color:${catColors[cat]||'var(--text)'}">${cat}</div>
+        <div class="obj-num">${v.count}</div>
+        <div class="obj-meta">${v.count === 1 ? 'mención' : 'menciones'} · ${v.ultimo || '—'}</div>
+      </div>`).join('');
+    document.getElementById('obj-content').innerHTML = `<div class="obj-grid">${items}</div>`;
+  } catch(e) {
+    document.getElementById('obj-content').innerHTML = `<div class="error-msg">Error: ${e.message}</div>`;
+  }
+}
+
+async function loadReuniones() {
+  try {
+    const data = await notionQueryDirect(DB_REUNIONES, {
+      sorts: [{ property: 'Fecha', direction: 'descending' }]
+    });
+    const pages = (data.results || []).slice(0, 5);
+    if (pages.length === 0) {
+      document.getElementById('reuniones-list').innerHTML = '<p style="color:var(--text3);font-size:12px">Sin reuniones registradas</p>';
+      return;
+    }
+    const rows = pages.map(p => {
+      const nombre = getProp(p, 'Reunión') || '—';
+      const paso = getProp(p, 'Próximo paso y fecha') || '—';
+      const fecha = getProp(p, 'Fecha') || '';
+      const nivel = getProp(p, 'Nivel de importancia') || '';
+      return `<div class="reunion-row">
+        <div style="overflow:hidden">
+          <div class="reunion-nombre">${nombre}</div>
+          <div class="reunion-paso">${paso.length > 50 ? paso.slice(0,50)+'...' : paso}</div>
+        </div>
+        <div class="reunion-fecha">${fmtFecha(fecha)}</div>
+      </div>`;
+    }).join('');
+    document.getElementById('reuniones-list').innerHTML = rows;
+  } catch(e) {
+    document.getElementById('reuniones-list').innerHTML = `<div class="error-msg">Error: ${e.message}</div>`;
+  }
+}
+
+async function loadLog() {
+  try {
+    const data = await notionQueryDirect(DB_LOG, {
+      sorts: [{ timestamp: 'created_time', direction: 'descending' }]
+    });
+    const page = data.results?.[0];
+    if (!page) {
+      document.getElementById('log-content').innerHTML = '<p style="color:var(--text3);font-size:12px">Sin entradas en el log aún</p>';
+      return;
+    }
+    const semana = getProp(page, 'Semana') || '—';
+    const aprendio = getProp(page, '¿Qué aprendí esta semana?') || '—';
+    const costo = getProp(page, '¿Qué me costó o me trabó?') || '—';
+    const diferente = getProp(page, '¿Qué haría diferente?') || '—';
+    const energia = getProp(page, 'Energía de la semana') || '—';
+    const energiaColor = energia.includes('Alta') ? 'var(--green)' : energia.includes('Baja') ? 'var(--red)' : 'var(--yellow)';
+    document.getElementById('log-content').innerHTML = `
+      <div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:12px;font-weight:500">${semana}</span>
+        <span style="font-size:11px;color:${energiaColor}">${energia}</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="background:var(--bg3);border-radius:6px;padding:8px 10px">
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Aprendí</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.4">${aprendio.length > 80 ? aprendio.slice(0,80)+'...' : aprendio}</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:6px;padding:8px 10px">
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Me costó</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.4">${costo.length > 80 ? costo.slice(0,80)+'...' : costo}</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:6px;padding:8px 10px">
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Haría diferente</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.4">${diferente.length > 80 ? diferente.slice(0,80)+'...' : diferente}</div>
+        </div>
+      </div>
+    `;
+  } catch(e) {
+    document.getElementById('log-content').innerHTML = `<div class="error-msg">Error: ${e.message}</div>`;
+  }
+}
+
+window._cuota = null;
+window._pipeline = null;
+window._cerrado = null;
+
+loadAll();
+</script>
+</body>
+</html>
